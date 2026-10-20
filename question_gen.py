@@ -47,41 +47,15 @@ The user's request is:
 {query}
 
 
-Based on the user's request generate the number of multiple-choice study questions asked based ONLY on
-the information contained in the provided document chunks.
+Based on the chunks provided below use that to answer the questions of the user. For questions you dont have enough context, knowledge for say you dont have enough information to answer it do not assume anything, everything should be factual.
 
 Requirements:
 1. Use ONLY information found in the documents.
 2. Do not invent facts or information.
-3. Each question must have exactly 4 options.
-4. Only ONE option must be correct.
 5. Make the incorrect options plausible but clearly incorrect based
    on the provided documents.
-6. Mix easy, medium, and difficult questions.
 7. Cover different parts of the provided documents.
-8. Do not repeat the same question.
-9. The answer must be exactly one of the four options.
-10. Return ONLY valid JSON.
-11. Do NOT use Markdown code fences.
-12. Do NOT include any explanation outside the JSON.
-
-Return the result using exactly this structure:
-
-{{
-  "questions": [
-    {{
-      "id": 1,
-      "question": "Question text",
-      "options": [
-        "A. Option 1",
-        "B. Option 2",
-        "C. Option 3",
-        "D. Option 4"
-      ],
-      "answer": "Correct option letter (A, B, C, or D)"
-    }}
-  ]
-}}
+10. Return ONLY valid response.
 
 Document chunks:
 
@@ -98,7 +72,7 @@ model = ChatOllama(
 # Define the messages for the model
 messages = [
     SystemMessage(content=
-                  "You are a helpful teaching assistant, trained to assist the teacher in drafting questions for exams."),
+                  "You are a helpful assistant, your job is help out the user by answering the user questions in the most accurate way possible"),
     HumanMessage(content=combined_input),
 ]
 

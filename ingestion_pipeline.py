@@ -6,8 +6,6 @@ from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_chroma import Chroma
 from dotenv import load_dotenv
 
-
-
 load_dotenv() 
 
 def load_documents(docs_path="docs"):
@@ -25,13 +23,11 @@ def load_documents(docs_path="docs"):
         loader_cls= PyPDFLoader      
     )  
     
-    
     documents = loader.load()
     
     if len(documents) == 0:
         raise FileNotFoundError(f"No .pdf files found in {docs_path}. Please add your company documents.")
     
-   
     for i, doc in enumerate(documents[:2], start = 1):  # Show first 2 documents
         print(f"\nDocument {i}:")
         print(f"  Source: {doc.metadata['source']}")
@@ -87,7 +83,6 @@ def create_vector_store(chunks, persist_directory="db/class_db"):
     print(f"Vector store created and saved to {persist_directory}")
     return vectorstore
 
-
 def main():
     """Main ingestion pipeline"""
     print("=== RAG Document Ingestion Pipeline ===\n")
@@ -122,7 +117,6 @@ def main():
     
     print("\n✅ Ingestion complete! Your documents are now ready for RAG queries.")
     return vectorstore
-
 
 if __name__ == "__main__":
     main()
