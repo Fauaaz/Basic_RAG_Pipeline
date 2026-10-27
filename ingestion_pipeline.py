@@ -13,12 +13,16 @@ from langchain_chroma import Chroma
 from langchain_core.messages import HumanMessage
 from langchain_ollama import ChatOllama
 from dotenv import load_dotenv
+import unstructured_pytesseract
+unstructured_pytesseract.pytesseract.tesseract_cmd = (
+    r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+)
 
 load_dotenv() 
 
 def partition_document(file_path: str):
     """Extract elements from PDF using unstructured"""
-    print(f"📄 Partitioning document: {file_path}")
+    print(f'Partitioning document: {file_path}')
     
     elements = partition_pdf(
         filename=file_path,  # Path to your PDF file
@@ -28,13 +32,13 @@ def partition_document(file_path: str):
         extract_image_block_to_payload=True # Store images as base64 data you can actually use
     )
     
-    print(f"✅ Extracted {len(elements)} elements")
+    print(f"Extracted {len(elements)} elements")
     return elements
 
 
 def create_chunks_by_title(elements):
     """Create intelligent chunks using title-based strategy"""
-    print("🔨 Creating smart chunks...")
+    print("Creating smart chunks...")
     
     chunks = chunk_by_title(
         elements, # The parsed PDF elements from previous step
@@ -43,7 +47,7 @@ def create_chunks_by_title(elements):
         combine_text_under_n_chars=500 # Merge tiny chunks under 500 chars with neighbors
     )
     
-    print(f"✅ Created {len(chunks)} chunks")
+    print(f"Created {len(chunks)} chunks")
     return chunks
 
 
@@ -129,7 +133,7 @@ def create_ai_enhanced_summary(text: str, tables: List[str], images: List[str]) 
         return response.content
         
     except Exception as e:
-        print(f"     ❌ AI summary failed: {e}")
+        print(f" AI summary failed: {e}")
         # Fallback to simple summary
         summary = f"{text[:300]}..."
         if tables:
@@ -140,7 +144,7 @@ def create_ai_enhanced_summary(text: str, tables: List[str], images: List[str]) 
 
 def summarise_chunks(chunks):
     """Process all chunks with AI Summaries"""
-    print("🧠 Processing chunks with AI Summaries...")
+    print("Processing chunks with AI Summaries...")
     
     langchain_documents = []
     total_chunks = len(chunks)
@@ -158,7 +162,7 @@ def summarise_chunks(chunks):
         
         # Create AI-enhanced summary if chunk has tables/images
         if content_data['tables'] or content_data['images']:
-            print(f"     → Creating AI summary for mixed content...")
+            print(f" → Creating AI summary for mixed content...")
             try:
                 enhanced_content = create_ai_enhanced_summary(
                     content_data['text'],
@@ -168,7 +172,7 @@ def summarise_chunks(chunks):
                 print(f"     → AI summary created successfully")
                 print(f"     → Enhanced content preview: {enhanced_content[:200]}...")
             except Exception as e:
-                print(f"     ❌ AI summary failed: {e}")
+                print(f"    AI summary failed: {e}")
                 enhanced_content = content_data['text']
         else:
             print(f"     → Using raw text (no tables/images)")
@@ -188,7 +192,7 @@ def summarise_chunks(chunks):
         
         langchain_documents.append(doc)
     
-    print(f"✅ Processed {len(langchain_documents)} chunks")
+    print(f" Processed {len(langchain_documents)} chunks")
     return langchain_documents
 
 def export_chunks_to_json(chunks, filename="chunks_export.json"):
@@ -209,13 +213,13 @@ def export_chunks_to_json(chunks, filename="chunks_export.json"):
     with open(filename, 'w', encoding='utf-8') as f:
         json.dump(export_data, f, indent=2, ensure_ascii=False)
     
-    print(f"✅ Exported {len(export_data)} chunks to {filename}")
+    print(f"Exported {len(export_data)} chunks to {filename}")
     return export_data
 
 
 def create_vector_store(documents, persist_directory="dbv1/chroma_db"):
     """Create and persist ChromaDB vector store"""
-    print("🔮 Creating embeddings and storing in ChromaDB...")
+    print("Creating embeddings and storing in ChromaDB...")
         
     embedding_model = HuggingFaceEmbeddings(model_name="BAAI/bge-m3", encode_kwargs={"normalize_embeddings": True})
     
@@ -229,11 +233,11 @@ def create_vector_store(documents, persist_directory="dbv1/chroma_db"):
     )
     print("--- Finished creating vector store ---")
     
-    print(f"✅ Vector store created and saved to {persist_directory}")
+    print(f"Vector store created and saved to {persist_directory}")
     return vectorstore
 
 
-def main():
+def main(pdf_path: str):
     """Main ingestion pipeline"""
     print('RAG Document Ingestion Pipeline ===\n')
     print("=" * 50)
@@ -248,11 +252,11 @@ def main():
     summarised_chunks = summarise_chunks(chunks)
     
     # Step 4: Vector Store
-    db = create_vector_store(summarised_chunks, persist_directory="dbv2/chroma_db")
+    db = create_vector_store(summarised_chunks, persist_directory="dbv2/smart_db")
     
     print(f'Ingestion pipeline completed')
     return db
 
 
 if __name__ == "__main__":
-    main()
+    main(r'C:\Users\USER\Desktop\RAG_project\Docs\26_L3_082804.pdf')
