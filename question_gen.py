@@ -71,17 +71,40 @@ model = ChatOllama(
 
 # Define the messages for the model
 messages = [
-    SystemMessage(content=
-                  "You are a helpful assistant, your job is help out the user by answering the user questions in the most accurate way possible"),
+    SystemMessage(content="""
+You are a CBT question generation assistant. Generate objective multiple-choice questions based only on the provided context.
+
+Return ONLY valid JSON in the following format:
+
+{
+    "questions": [
+        {
+            "question": "Question text",
+            "options": {
+                "A": "Option A",
+                "B": "Option B",
+                "C": "Option C",
+                "D": "Option D"
+            },
+            "correct_answer": "A"
+        }
+    ]
+}
+
+Rules:
+- Generate the number of questions requested by the user.
+- Each question must have exactly four options (A, B, C, D).
+- Each question must have exactly one correct answer.
+- The correct_answer must contain only the letter A, B, C, or D.
+- Base all questions and answers strictly on the provided context.
+- Do not include explanations, markdown, or additional text.
+- Ensure the output is valid JSON.
+"""),
     HumanMessage(content=combined_input),
 ]
 
-# Invoke the model with the combined input
 result = model.invoke(messages)
 
-# Display the full result and content only
 print("\n--- Generated Response ---")
-# print("Full result:")
-# print(result)
 print("Content only:")
 print(result.content)
